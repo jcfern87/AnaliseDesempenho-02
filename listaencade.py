@@ -103,6 +103,4 @@ def lerArquivo(arquivo):
                 print(f"Ação desconhecida: {action_type}")
 
 # Chamada da função com o nome do arquivo.
-lerArquivo('arq.txt')
-print('')
-lerArquivo('arq2.txt')
+lerArquivo('arq-novo.txt')
