@@ -1,47 +1,57 @@
-#include <iostream> 
+#include <iostream>
 #include <locale.h>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 using namespace std;
-
 
 class No
 {
 private:
 public:
-    int data; //Dado do nó
+    int data; // Dado do nó
     No *prox;
 
-    No(int data) {
+    No(int data)
+    {
         this->data = data;
         this->prox = nullptr;
     }
 };
 
-class listaEnc 
+class listaEnc
 {
 private:
     No *head;
+
 public:
     // Construtor da classe
-    listaEnc () {
+    listaEnc()
+    {
         this->head = nullptr;
     };
 
     // Função que adiciona os Nós a partir do final
-    void addFim(int data) {
+    void addFim(int data)
+    {
         No *novoNo = new No(data);
-        if (head == nullptr) {
+        if (head == nullptr)
+        {
             head = novoNo;
             return;
         }
         No *temp = head;
-        while (temp->prox != nullptr) {
+        while (temp->prox != nullptr)
+        {
             temp = temp->prox;
         }
         temp->prox = novoNo;
     }
-    
+
     // Função inserir em posição
-    void inserir(int data, int posicao) {
+    void inserir(int data, int posicao)
+    {
         No *novoNo = new No(data);
         No *temp = head;
         int cont = 0;
@@ -61,58 +71,98 @@ public:
     }
 
     // Função que remove um nó a partir de seus dados
-    void remove(int data) {
+    void remove(int data)
+    {
         No *temp = head;
-        while (temp != nullptr) {
+        while (temp != nullptr)
+        {
+            if (temp->prox == nullptr)
+            {
+                break;
+            }
             if (temp->prox->data == data)
             {
                 temp->prox = temp->prox->prox;
                 return;
             }
             temp = temp->prox;
-        } 
+        }
         cout << "O nó que você está tentando remover não existe." << endl;
     }
 
-    void printList() {
+    void printList()
+    {
         No *temp = head;
         cout << "{ ";
         while (temp != nullptr)
-        {   
+        {
             cout << temp->data << ", ";
             temp = temp->prox;
         }
         cout << "}" << endl;
     }
-
 };
 
-int main() {
-    setlocale(LC_ALL, "portuguese");
-
+class leitorTxt
+{
+public:
     listaEnc lista;
 
-    lista.addFim(1);
-    lista.addFim(2);
-    lista.addFim(3);
-    lista.addFim(4);
-    lista.addFim(5);
+    void lerArq(const std::string &arquivo)
+    {
+        std::ifstream file(arquivo);
+        if (!file.is_open())
+        {
+            std::cerr << "Houve um erro ao abrir o arquivo." << std::endl;
+            return;
+        }
 
-    cout << "Lista original: "; 
-    lista.printList();
+        std::string linha;
+        std::getline(file, linha); // Lista inicial
 
-    lista.remove(2);
-    lista.remove(4);
+        std::istringstream initialStream(linha);
+        int valor;
+        while (initialStream >> valor)
+        {
+            lista.addFim(valor);
+        }
 
-    cout << "Lista sem os números impares: ";
-    lista.printList();
+        std::getline(file, linha); // Segunda linha, número de ações
+        int numAcoes = std::stoi(linha);
 
-    lista.inserir(2, 1);
-    lista.inserir(4, 3);
+        for (int i = 0; i < numAcoes; ++i)
+        {
+            std::getline(file, linha);
+            std::istringstream actionStream(linha);
 
-    cout << "Lista de volta ao normal: ";
-    lista.printList();
+            std::string acao;
+            int num, pos;
+            actionStream >> acao;
+
+            if (acao == "A")
+            {
+                actionStream >> num >> pos;
+                lista.inserir(num, pos);
+            }
+            else if (acao == "R")
+            {
+                actionStream >> num;
+                lista.remove(num);
+            }
+            else if (acao == "P")
+            {
+                lista.printList();
+            }
+        }
+
+        file.close();
+    }
+};
+
+int main()
+{
+
+    leitorTxt leitor;
+    leitor.lerArq("arq-novo.txt");
+    return 0;
 }
-
-
-
